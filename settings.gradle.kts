@@ -1,5 +1,7 @@
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.6.0"
-}
+rootProject.name = "Advent of Code Kotlin Template"
 
-rootProject.name = "advent-of-code-kotlin-template"
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
