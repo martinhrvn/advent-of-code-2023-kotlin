@@ -3,20 +3,23 @@ package day01
 import println
 import readInput
 
-class CalibrationReader {
+class CalibrationReader(val input: List<String>) {
     val digitMapping = mapOf(
         "one" to 1, "two" to 2, "three" to 3,
         "four" to 4, "five" to 5, "six" to 6,
         "seven" to 7, "eight" to 8, "nine" to 9
     )
 
-    fun getCalibrationNumber(line: String): Int {
+    fun part1() = input.sumOf(::getCalibrationNumber)
+    fun part2() = input.sumOf(::getCalibrationIncludingWords)
+
+    private fun getCalibrationNumber(line: String): Int {
         val first = line.first { it.isDigit() }
         val last = line.last { it.isDigit() }
         return "$first$last".toInt()
     }
 
-    fun getCalibrationIncludingWords(line: String): Int {
+    private fun getCalibrationIncludingWords(line: String): Int {
         val first: Int = line.indices.firstNotNullOf { i ->
             if (line[i].isDigit()) {
                 line[i].digitToInt()
@@ -44,25 +47,14 @@ class CalibrationReader {
 }
 
 fun main() {
-    val calibrationReader = CalibrationReader()
-    fun part1(input: List<String>): Int = input.sumOf {
-        calibrationReader.getCalibrationNumber(it)
-    }
-
-    fun part2(input: List<String>): Int = input.sumOf { line ->
-        calibrationReader.getCalibrationIncludingWords(line)
-    }
-
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day01/Day01_test")
-    check(part1(testInput) == 142)
+    check(CalibrationReader(testInput).part1() == 142)
     val testInput_part2 = readInput("day01/Day01_2_test")
-    val result2 = part2(testInput_part2)
-    check(result2 == 281) {
-        "Was ${result2}"
-    }
+    check(CalibrationReader(testInput_part2).part2() == 281)
 
     val input = readInput("day01/Day01")
-    part1(input).println()
-    part2(input).println()
+    val calibrationReader = CalibrationReader(input)
+    calibrationReader.part1().println()
+    calibrationReader.part2().println()
 }
