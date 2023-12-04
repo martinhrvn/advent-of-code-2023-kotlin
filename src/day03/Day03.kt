@@ -92,11 +92,11 @@ class PartParser(private val input: List<String>) {
 
     val before = takeNumberAt(x, y, Direction.BEFORE)
     val after = takeNumberAt(x, y, Direction.AFTER)
-    if (input.get(x)[y].isDigit()) {
-      return mapOf(Pair(x, y - before.length) to before.plus(input.get(x)[y]).plus(after).intVal())
-    } else {
-      return mapOf(Pair(x, y - before.length) to before.intVal(), Pair(x, y + 1) to after.intVal())
-    }
+      return if (input[x][y].isDigit()) {
+          mapOf(Pair(x, y - before.length) to before.plus(input.get(x)[y]).plus(after).intVal())
+      } else {
+          mapOf(Pair(x, y - before.length) to before.intVal(), Pair(x, y + 1) to after.intVal())
+      }
   }
 }
 
