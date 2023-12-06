@@ -14,3 +14,13 @@ fun String.md5() =
 
 /** The cleaner shorthand for printing output. */
 fun Any?.println() = println(this)
+
+fun String.readNumbers() = this.split("\\s+".toRegex()).map { it.toLong() }
+
+fun String.removeLabel(prefix: String): String {
+    return this.removeRegex("$prefix:\\s+")
+}
+
+fun String.removeRegex(regex: String): String {
+    return this.replace(regex.toRegex(), "")
+}

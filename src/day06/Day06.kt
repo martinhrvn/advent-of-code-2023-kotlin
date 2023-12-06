@@ -2,6 +2,8 @@ package day06
 
 import readInput
 import readNumbers
+import removeLabel
+import removeRegex
 
 data class Race(val time: Long, val distance: Long) {
   fun getWays(): Int {
@@ -9,29 +11,23 @@ data class Race(val time: Long, val distance: Long) {
   }
 }
 
-fun String.removePrefix(prefix: String): String {
-    return this.removeRegex("$prefix:\\s+")
-}
 
-fun String.removeRegex(regex: String): String {
-    return this.replace(regex.toRegex(), "")
-}
 
 class Day06(private val input: List<String>) {
 
 
 
   fun parseInputAsList(): List<Race> {
-    val times = input.first().removePrefix("Time").readNumbers()
-    val distances = input[1].removePrefix("Distance").readNumbers()
+    val times = input.first().removeLabel("Time").readNumbers()
+    val distances = input[1].removeLabel("Distance").readNumbers()
     return times.zip(distances) { time, distance -> Race(time, distance) }
   }
 
   fun parseInputAsString(): Race {
     val times =
-        input.first().removePrefix("Time").removeRegex("\\s+").toLong()
+        input.first().removeLabel("Time").removeRegex("\\s+").toLong()
     val distances =
-        input[1].removePrefix("Distance").removeRegex("\\s+").toLong()
+        input[1].removeLabel("Distance").removeRegex("\\s+").toLong()
     return Race(times, distances)
   }
 
