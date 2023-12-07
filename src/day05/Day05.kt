@@ -32,73 +32,84 @@ data class SeedMapping(
         temperatureToHumidity.getDestination(
             ligthToTemperature.getDestination(
                 waterToLight.getDestination(
-                    fertilizerToWater.getDestination(souilToFertilizer.getDestination(seedToSouil.getDestination(seed)))))))
+                    fertilizerToWater.getDestination(
+                        souilToFertilizer.getDestination(seedToSouil.getDestination(seed)))))))
   }
 
-    fun getSeedDestinations(): List<Long> {
-        return seeds.map { getDestination(it)}
+  fun getSeedDestinations(): List<Long> {
+    return seeds.map { getDestination(it) }
+  }
+
+  fun getExtendedSeedDestinations(): List<Long> {
+    //        val hlMap = humidityToLocation.fold(mapOf<Long,Long>()) { acc, curr ->
+    //            acc.plus(initMap(curr, acc))
+    //        }
+    //        val thMap = rangesToMap(temperatureToHumidity, hlMap)
+    //        val ltMap = rangesToMap(ligthToTemperature, thMap)
+    //        val wlMap = rangesToMap(waterToLight, ltMap)
+    //        val fwMap = rangesToMap(fertilizerToWater, wlMap)
+    //        val sfMap = rangesToMap(souilToFertilizer, fwMap)
+    //        val ssMap = rangesToMap(seedToSouil, sfMap)
+
+    return seeds.chunked(2).map { (start, range) ->
+      (start ..< start + range).minBy { i -> getSeedDestinations().min() }
+    }
+  }
+
+  companion object {
+    fun parse(input: List<String>): SeedMapping {
+      val (label, seedStr) = input.first().split(": ")
+      val seeds = seedStr.split(" ").map { it.toLong() }
+      val seedToSoilMapping = getMapping(input, "seed-to-soil map:")
+      val soilToFertilizer = getMapping(input, "soil-to-fertilizer map:")
+      val fertilizerToWater = getMapping(input, "fertilizer-to-water map:")
+      val waterToLight = getMapping(input, "water-to-light map:")
+      val ligthToTemperature = getMapping(input, "light-to-temperature map:")
+      val temperatureToHumidity = getMapping(input, "temperature-to-humidity map:")
+      val humidityToLocation = getMapping(input, "humidity-to-location map:")
+
+      return SeedMapping(
+          seeds,
+          seedToSoilMapping,
+          soilToFertilizer,
+          fertilizerToWater,
+          waterToLight,
+          ligthToTemperature,
+          temperatureToHumidity,
+          humidityToLocation)
     }
 
-    fun getExtendedSeedDestinations(): List<Long> {
-//        val hlMap = humidityToLocation.fold(mapOf<Long,Long>()) { acc, curr ->
-//            acc.plus(initMap(curr, acc))
-//        }
-//        val thMap = rangesToMap(temperatureToHumidity, hlMap)
-//        val ltMap = rangesToMap(ligthToTemperature, thMap)
-//        val wlMap = rangesToMap(waterToLight, ltMap)
-//        val fwMap = rangesToMap(fertilizerToWater, wlMap)
-//        val sfMap = rangesToMap(souilToFertilizer, fwMap)
-//        val ssMap = rangesToMap(seedToSouil, sfMap)
-
-        return seeds.chunked(2).map { (start, range) ->
-            (start..<start+range).minBy { i -> getSeedDestinations().min() }
-        }
+    fun rangesToMap(sources: List<Mapping>, destination: Map<Long, Long>): Map<Long, Long> {
+      return sources.fold(destination) { acc, curr -> acc.plus(rangeToMap(curr, acc)) }
     }
 
-    companion object {
-        fun parse(input: List<String>): SeedMapping {
-            val (label, seedStr) = input.first().split(": ")
-            val seeds = seedStr.split(" ").map { it.toLong() }
-            val seedToSoilMapping = getMapping(input, "seed-to-soil map:" )
-            val soilToFertilizer = getMapping( input,"soil-to-fertilizer map:")
-            val fertilizerToWater = getMapping( input, "fertilizer-to-water map:")
-            val waterToLight = getMapping( input, "water-to-light map:" )
-            val ligthToTemperature = getMapping( input, "light-to-temperature map:")
-            val temperatureToHumidity = getMapping( input, "temperature-to-humidity map:")
-            val humidityToLocation = getMapping( input, "humidity-to-location map:")
+    fun initMap(source: Mapping, destination: Map<Long, Long>): Map<Long, Long> {
+      return (source.destination - source.range ..< source.range)
+          .mapNotNull { i -> (source.source + i) to (source.destination + i) }
+          .toMap()
+    }
 
-            return SeedMapping(seeds, seedToSoilMapping, soilToFertilizer, fertilizerToWater, waterToLight, ligthToTemperature, temperatureToHumidity, humidityToLocation)
-        }
-
-        fun rangesToMap(sources: List<Mapping>, destination: Map<Long,Long>): Map<Long, Long> {
-            return sources.fold(destination) { acc, curr ->
-                acc.plus(rangeToMap(curr, acc))
+    fun rangeToMap(source: Mapping, destination: Map<Long, Long>): Map<Long, Long> {
+      return (source.destination - source.range ..< source.range)
+          .mapNotNull { i ->
+            destination.getOrDefault(source.destination + i, null)?.let {
+              (source.source + i) to it
             }
-        }
-
-        fun initMap(source: Mapping, destination: Map<Long, Long>): Map<Long, Long> {
-            return (source.destination - source.range..<source.range).mapNotNull { i ->
-                (source.source + i) to (source.destination + i)
-            }.toMap()
-        }
-
-
-        fun rangeToMap(source: Mapping, destination: Map<Long, Long>): Map<Long, Long> {
-            return (source.destination - source.range..<source.range).mapNotNull { i ->
-                destination.getOrDefault(source.destination + i, null)?.let {
-                    (source.source + i) to it
-                }
-            }.toMap()
-        }
-
-        fun getMapping(input: List<String>, label: String): List<Mapping> {
-            return input.dropWhile{ !it.startsWith(label)}.drop(1).takeWhile { "\\d+ \\d+ \\d+".toRegex().matches(it)}.map {
-                val (destination, source, range) = it.split(" ")
-                Mapping(source.toLong(), destination.toLong(), range.toLong())
-            }
-        }
+          }
+          .toMap()
     }
 
+    fun getMapping(input: List<String>, label: String): List<Mapping> {
+      return input
+          .dropWhile { !it.startsWith(label) }
+          .drop(1)
+          .takeWhile { "\\d+ \\d+ \\d+".toRegex().matches(it) }
+          .map {
+            val (destination, source, range) = it.split(" ")
+            Mapping(source.toLong(), destination.toLong(), range.toLong())
+          }
+    }
+  }
 }
 
 class SoilChecker(private val input: List<String>) {
@@ -109,7 +120,7 @@ class SoilChecker(private val input: List<String>) {
   }
 
   fun part2(): Long {
-    return  SeedMapping.parse(input).getExtendedSeedDestinations().min()
+    return SeedMapping.parse(input).getExtendedSeedDestinations().min()
   }
 }
 

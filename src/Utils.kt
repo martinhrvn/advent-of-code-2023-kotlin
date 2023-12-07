@@ -18,9 +18,15 @@ fun Any?.println() = println(this)
 fun String.readNumbers() = this.split("\\s+".toRegex()).map { it.toLong() }
 
 fun String.removeLabel(prefix: String): String {
-    return this.removeRegex("$prefix:\\s+")
+  return this.removeRegex("$prefix:\\s+")
 }
 
 fun String.removeRegex(regex: String): String {
-    return this.replace(regex.toRegex(), "")
+  return this.replace(regex.toRegex(), "")
+}
+
+interface AdventDay {
+  fun part1(): Long
+
+  fun part2(): Long
 }

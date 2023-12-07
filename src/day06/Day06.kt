@@ -11,11 +11,7 @@ data class Race(val time: Long, val distance: Long) {
   }
 }
 
-
-
 class Day06(private val input: List<String>) {
-
-
 
   fun parseInputAsList(): List<Race> {
     val times = input.first().removeLabel("Time").readNumbers()
@@ -24,10 +20,8 @@ class Day06(private val input: List<String>) {
   }
 
   fun parseInputAsString(): Race {
-    val times =
-        input.first().removeLabel("Time").removeRegex("\\s+").toLong()
-    val distances =
-        input[1].removeLabel("Distance").removeRegex("\\s+").toLong()
+    val times = input.first().removeLabel("Time").removeRegex("\\s+").toLong()
+    val distances = input[1].removeLabel("Distance").removeRegex("\\s+").toLong()
     return Race(times, distances)
   }
 
