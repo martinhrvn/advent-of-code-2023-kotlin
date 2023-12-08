@@ -1,14 +1,15 @@
 package day08
 
 import AdventDay
+import findLCM
 import readInput
 
 
-data class HauntedWasteland(val start: String, val path: Map<String, Pair<String, String>>, val instructions: String) {
+data class HauntedWasteland(val path: Map<String, Pair<String, String>>, val instructions: List<String>) {
 
-    fun getInstructions() = generateSequence { instructions.split("").filter { it.isNotEmpty() } }.flatten()
+    private fun getInstructions() = generateSequence { instructions }.flatten()
 
-    fun findPath(start: String, endCondition: (str: String) -> Boolean ): Int {
+    fun getPathLength(start: String, endCondition: (str: String) -> Boolean ): Int {
         return getInstructions().scan(start) { acc, instr ->
             val (left, right) = path[acc]!!
             if (instr == "L") {
@@ -23,42 +24,28 @@ data class HauntedWasteland(val start: String, val path: Map<String, Pair<String
         val startPaths = path.keys.filter { it.endsWith("A") }
 
         val lengths = startPaths.map { path ->
-            findPath(path) { !it.endsWith("Z") }.toLong()
+            getPathLength(path) { !it.endsWith("Z") }.toLong()
         }
-        return lengths.reduce(::findLCM)
-    }
-
-    fun findLCM(a: Long, b: Long): Long {
-        val larger = if (a > b) a else b
-        val maxLcm = a * b
-        var lcm = larger
-        while (lcm <= maxLcm) {
-            if (lcm.rem(a) == 0L && lcm.rem(b) == 0L) {
-                return lcm
-            }
-            lcm += larger
-        }
-        return maxLcm
+        return lengths.reduce { acc, item -> findLCM(acc, item)}
     }
 
     companion object {
         fun parse(input: List<String>): HauntedWasteland {
-            val instructions = input.first()
-            val start = "AAA"
+            val instructions = input.first().split("").filter { it.isNotEmpty() }
             val path = input.drop(2).map { line ->
                 val result = "([A-Z0-9]{3}) = \\(([A-Z0-9]{3}), ([A-Z0-9]{3})\\)".toRegex().find(line)
-                val (from, left, right) = result!!.destructured
+                val (from, left, right) = result!!.groupValues
                 from to (left to right)
             }.toMap()
 
-            return HauntedWasteland(start, path, instructions)
+            return HauntedWasteland(path, instructions)
         }
     }
 }
 
-class Day08(val input: List<String>): AdventDay {
+class Day08(private val input: List<String>): AdventDay {
     override fun part1(): Long {
-        return HauntedWasteland.parse(input).findPath("AAA", { it != "ZZZ"}).toLong()
+        return HauntedWasteland.parse(input).getPathLength("AAA") { it != "ZZZ" }.toLong()
     }
 
     override fun part2(): Long {
