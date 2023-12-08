@@ -32,10 +32,10 @@ interface AdventDay {
 }
 
 fun gcd(a: Long, b: Long): Long {
-    if (b == 0L) return a
-    return gcd(b, a.rem(b))
+  if (b == 0L) return a
+  return gcd(b, a.rem(b))
 }
 
 fun findLCM(a: Long, b: Long): Long {
-    return (a * b) / gcd(a, b)
+  return (a * b) / gcd(a, b)
 }
