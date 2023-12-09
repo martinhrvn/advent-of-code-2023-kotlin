@@ -1,22 +1,23 @@
 package day09
 
-import kotlin.math.abs
 import readInput
+import readNumbers
 
 class Day09(val input: List<String>) {
 
   private fun getSequence() = generateSequence(0) { it + 1 }
 
   private fun parseInput(): List<List<Long>> {
-    return input.map { it.split(" ").map { elm -> elm.toLong() } }
+    return input.map { it.readNumbers() }
   }
 
   private fun predictNextValue(numbers: List<Long>): Long {
     val predictionRows =
         getSequence()
             .scan(numbers) { row, _ -> row.windowed(2).map { (i1, i2) -> i2 - i1 } }
-            .takeWhile { it.any { n -> n != 0L } }.toList()
-    return predictionRows.map { it.last() }.reversed().reduce { acc, i -> acc + i }
+            .takeWhile { it.any { n -> n != 0L } }
+            .toList()
+    return predictionRows.sumOf { it.last() }
   }
 
   private fun predictPreviousValue(numbers: List<Long>): Long {
