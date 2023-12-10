@@ -29,16 +29,24 @@ data class Day10(val input: List<String>){
     }
 
     fun getChain(coord: Coord, chain: List<Coord>): List<Coord>? {
-        val connections = getConnectedNeighbor(coord)
-        val con = connections.filter { it !in explored }
-        if (connections.contains(start) && con.isEmpty()) {
-            return chain
-        }
-        else if (con.isEmpty()) {
-            return null
-        } else {
-            explored.add(coord)
-            return getChain(con.first(), chain + coord)
+        var currentCoord = coord
+        var currentChain = chain
+
+        while (true) {
+            val connections = getConnectedNeighbor(currentCoord)
+            val con = connections.filter { it !in explored }
+
+            if (connections.contains(start) && con.isEmpty()) {
+                return currentChain
+            }
+            else if (con.isEmpty()) {
+                return null
+            }
+            else {
+                explored.add(currentCoord)
+                currentChain = currentChain + currentCoord
+                currentCoord = con.first()
+            }
         }
     }
 
