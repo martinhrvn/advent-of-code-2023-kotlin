@@ -39,3 +39,9 @@ fun gcd(a: Long, b: Long): Long {
 fun findLCM(a: Long, b: Long): Long {
   return (a * b) / gcd(a, b)
 }
+
+fun <T> elementPairs(arr: List<T>): Sequence<Pair<T, T>> =
+    arr.asSequence().withIndex()
+        .flatMap { (i, a) ->
+            arr.subList(i + 1, arr.size).asSequence().map { b -> a to b }
+        }
